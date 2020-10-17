@@ -47,14 +47,14 @@ temp_expected_output = np.array(outputs) # (endPoint*10 - startPoint*10)^2 x 1 m
 b1 = 1
 b2 = 1
 
-inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 2, 1
+inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 1024, 1
 
 
 # Gaussian Noise
 mu, sigma = 0, 0
 
 epochs = 100000
-learning_rate = 0.00002
+learning_rate = 0.0000002
 
 hidden_weights = np.random.uniform(size=(hiddenLayerNeurons, inputLayerNeurons))
 hidden_bias_weights = np.random.uniform(size=(hiddenLayerNeurons, 1))
@@ -63,13 +63,7 @@ output_bias_weights = np.random.uniform(size=(outputLayerNeurons, 1))
 
 for i in range(epochs):
     #print("Epochs is", i)
-    # Generate an integer random variable between 0 and (rows of inputs) - 1 in order to select input pair
-    index = randint(0, ((endPoint-startPoint)*10)**2 - 1)
-    noise = np.random.normal(mu, sigma, [1, 2]) # Generate Gaussian Noise for adding inputs
-    initial_inputs = temp_initial_inputs[index, :] # select an input pair out of 4 pairs 1x2 matrix
-    expected_output = temp_expected_output[index] # select expected output corresponding to input
-
-    inputs = initial_inputs + noise # 1x2 matrix
+    inputs = temp_initial_inputs
 
     # Forward Propagation
     hidden_layer = np.dot(hidden_weights, inputs.T) + np.dot(hidden_bias_weights, b1)
@@ -81,7 +75,10 @@ for i in range(epochs):
     output_layer_activation = linear_function(output_layer) # #outputLayerNeurons x 1 matrix
 
     # Back Propagation
-    error_train = expected_output - output_layer_activation
+    #error_train = temp_expected_output - output_layer_activation
+
+    # Mean Squared Error
+    error_train = np.square(np.subtract(temp_expected_output, output_layer_activation)).mean()
 
     # Derivative of Linear act. func. was used
     delta_error = error_train * derivative_linear(output_layer_activation)  # Partial derivative dE/dxj 1x1 matrix
@@ -96,5 +93,5 @@ for i in range(epochs):
     # Updating weights for input layer
     hidden_weights = hidden_weights + np.dot(delta_hidden_layer, inputs) * learning_rate
     hidden_bias_weights = hidden_bias_weights + delta_hidden_layer * b1 * learning_rate
+    print("Error", error_train)
 
-print("Error", error_train)
