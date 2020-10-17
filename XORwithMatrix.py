@@ -91,11 +91,11 @@ for i in range(epochs):
     hidden_bias_weights = hidden_bias_weights + delta_hidden_layer * b1 * learning_rate
 
 print("Error", error_train)
-'''
-graph_error = np.squeeze(np.array(graph_error))
-plt.plot(dim, graph_error)
+abs_graph_error =np.abs(graph_error)
+abs_graph_error = np.squeeze(np.array(abs_graph_error))
+plt.plot(dim, abs_graph_error)
 p.show()
-'''
+
 for i in range (1):
 
     noise = np.random.normal(mu, sigma, [2, 4])  # Generate Gaussian Noise for adding inputs
