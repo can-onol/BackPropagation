@@ -32,7 +32,7 @@ def derivative_sigmoid(x):
 
 inputs = []
 outputs = []
-startPoint, endPoint = 0.1, 0.6
+startPoint, endPoint = -2, 2
 
 for a in np.arange(startPoint, endPoint, 0.1):
     for b in np.arange(startPoint, endPoint, 0.1):
@@ -47,14 +47,14 @@ temp_expected_output = np.array(outputs) # (endPoint*10 - startPoint*10)^2 x 1 m
 b1 = 1
 b2 = 1
 
-inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 1024, 1
+inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 32, 1
 
 
 # Gaussian Noise
-mu, sigma = 0, 0
+mu, sigma = 0, 0.1
 
-epochs = 100000
-learning_rate = 0.0000002
+epochs = 1000
+learning_rate = 0.002
 
 hidden_weights = np.random.uniform(size=(hiddenLayerNeurons, inputLayerNeurons))
 hidden_bias_weights = np.random.uniform(size=(hiddenLayerNeurons, 1))
@@ -78,7 +78,7 @@ for i in range(epochs):
     #error_train = temp_expected_output - output_layer_activation
 
     # Mean Squared Error
-    error_train = np.square(np.subtract(temp_expected_output, output_layer_activation)).mean()
+    error_train = np.mean(temp_expected_output - output_layer_activation.T)
 
     # Derivative of Linear act. func. was used
     delta_error = error_train * derivative_linear(output_layer_activation)  # Partial derivative dE/dxj 1x1 matrix
@@ -93,5 +93,6 @@ for i in range(epochs):
     # Updating weights for input layer
     hidden_weights = hidden_weights + np.dot(delta_hidden_layer, inputs) * learning_rate
     hidden_bias_weights = hidden_bias_weights + delta_hidden_layer * b1 * learning_rate
-    print("Error", error_train)
+print("Error", error_train)
+print("Epochs is", i)
 
