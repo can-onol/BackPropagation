@@ -54,21 +54,22 @@ inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 2, 1
 mu, sigma = 0, 0
 
 epochs = 100000
-learning_rate = 0.001
+learning_rate = 0.00001
 
 hidden_weights = np.random.uniform(size=(hiddenLayerNeurons, inputLayerNeurons))
 hidden_bias_weights = np.random.uniform(size=(hiddenLayerNeurons, 1))
 output_weights = np.random.uniform(size=(outputLayerNeurons, hiddenLayerNeurons))
 output_bias_weights = np.random.uniform(size=(outputLayerNeurons, 1))
+
 index = 0
 item = 10
 lastIndex = int(((endPoint-startPoint)*10)**2)
+
 for i in range(epochs):
     # Index is increased 5 and taking 10 items for each training
-    if index+item == lastIndex:
-        index = 0
     if index+item > lastIndex:
         index = lastIndex - item
+    #print(index)
     #print("Epochs is", i)
     noise = np.random.normal(mu, sigma, [item, 2]) # Generate Gaussian Noise for adding inputs
     initial_inputs = temp_initial_inputs[index:index+item, :] # select an input pair out of 4 pairs 1x2 matrix
@@ -104,5 +105,7 @@ for i in range(epochs):
     hidden_bias_weights = hidden_bias_weights + delta_hidden_layer * b1 * learning_rate
     print("Error", error_train)
     index += 5
+    if index == lastIndex - 5:
+        index = 0
 
 
