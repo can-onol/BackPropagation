@@ -32,7 +32,7 @@ def derivative_sigmoid(x):
 
 inputs = []
 outputs = []
-startPoint, endPoint = 0.1, 0.6
+startPoint, endPoint = 0.1, 0.7
 
 for a in np.arange(startPoint, endPoint, 0.1):
     for b in np.arange(startPoint, endPoint, 0.1):
@@ -54,22 +54,27 @@ inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 2, 1
 mu, sigma = 0, 0
 
 epochs = 100000
-learning_rate = 0.00002
+learning_rate = 0.001
 
 hidden_weights = np.random.uniform(size=(hiddenLayerNeurons, inputLayerNeurons))
 hidden_bias_weights = np.random.uniform(size=(hiddenLayerNeurons, 1))
 output_weights = np.random.uniform(size=(outputLayerNeurons, hiddenLayerNeurons))
 output_bias_weights = np.random.uniform(size=(outputLayerNeurons, 1))
-
+index = 0
+item = 10
+lastIndex = int(((endPoint-startPoint)*10)**2)
 for i in range(epochs):
+    # Index is increased 5 and taking 10 items for each training
+    if index+item == lastIndex:
+        index = 0
+    if index+item > lastIndex:
+        index = lastIndex - item
     #print("Epochs is", i)
-    # Generate an integer random variable between 0 and (rows of inputs) - 1 in order to select input pair
-    index = randint(0, ((endPoint-startPoint)*10)**2 - 1)
-    noise = np.random.normal(mu, sigma, [1, 2]) # Generate Gaussian Noise for adding inputs
-    initial_inputs = temp_initial_inputs[index, :] # select an input pair out of 4 pairs 1x2 matrix
-    expected_output = temp_expected_output[index] # select expected output corresponding to input
+    noise = np.random.normal(mu, sigma, [item, 2]) # Generate Gaussian Noise for adding inputs
+    initial_inputs = temp_initial_inputs[index:index+item, :] # select an input pair out of 4 pairs 1x2 matrix
+    expected_output = temp_expected_output[index:index+item] # select expected output corresponding to input
 
-    inputs = initial_inputs + noise # 1x2 matrix
+    inputs = initial_inputs # 1x2 matrix
 
     # Forward Propagation
     hidden_layer = np.dot(hidden_weights, inputs.T) + np.dot(hidden_bias_weights, b1)
@@ -81,7 +86,8 @@ for i in range(epochs):
     output_layer_activation = linear_function(output_layer) # #outputLayerNeurons x 1 matrix
 
     # Back Propagation
-    error_train = expected_output - output_layer_activation
+    # Mean Squared Error
+    error_train = np.square(np.subtract(temp_expected_output[index:index+10], output_layer_activation)).mean()
 
     # Derivative of Linear act. func. was used
     delta_error = error_train * derivative_linear(output_layer_activation)  # Partial derivative dE/dxj 1x1 matrix
@@ -96,5 +102,7 @@ for i in range(epochs):
     # Updating weights for input layer
     hidden_weights = hidden_weights + np.dot(delta_hidden_layer, inputs) * learning_rate
     hidden_bias_weights = hidden_bias_weights + delta_hidden_layer * b1 * learning_rate
+    print("Error", error_train)
+    index += 5
 
-print("Error", error_train)
+
