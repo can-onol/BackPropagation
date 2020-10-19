@@ -32,7 +32,7 @@ def derivative_sigmoid(x):
 
 inputs = []
 outputs = []
-startPoint, endPoint = 0.1, 0.6
+startPoint, endPoint = 0.1, 0.7
 
 for a in np.arange(startPoint, endPoint, 0.1):
     for b in np.arange(startPoint, endPoint, 0.1):
@@ -54,7 +54,7 @@ inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 2, 1
 mu, sigma = 0, 0
 
 epochs = 100000
-learning_rate = 0.000001
+learning_rate = 0.001
 
 hidden_weights = np.random.uniform(size=(hiddenLayerNeurons, inputLayerNeurons))
 hidden_bias_weights = np.random.uniform(size=(hiddenLayerNeurons, 1))
@@ -62,15 +62,14 @@ output_weights = np.random.uniform(size=(outputLayerNeurons, hiddenLayerNeurons)
 output_bias_weights = np.random.uniform(size=(outputLayerNeurons, 1))
 index = 0
 item = 10
-lastIndex = ((endPoint-startPoint)*10)**2 - 1
+lastIndex = int(((endPoint-startPoint)*10)**2)
 for i in range(epochs):
+    # Index is increased 5 and taking 10 items for each training
     if index+item == lastIndex:
         index = 0
     if index+item > lastIndex:
         index = lastIndex - item
     #print("Epochs is", i)
-    # Generate an integer random variable between 0 and (rows of inputs) - 1 in order to select input pair
-    #index = randint(0, ((endPoint-startPoint)*10)**2 - (item+1)) # Index can exceed inputs array if index near to last 10 terms
     noise = np.random.normal(mu, sigma, [item, 2]) # Generate Gaussian Noise for adding inputs
     initial_inputs = temp_initial_inputs[index:index+item, :] # select an input pair out of 4 pairs 1x2 matrix
     expected_output = temp_expected_output[index:index+item] # select expected output corresponding to input
