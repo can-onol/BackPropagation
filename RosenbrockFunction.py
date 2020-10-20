@@ -13,99 +13,20 @@ from random import random
 import matplotlib.pyplot as plt
 import pylab as p
 import numpy as np
+import time
 
-# seed random number generator
-seed(1)
+x = np.linspace(-2, 1.9, 40)
 
-def linear_function(x):
-    return x
+# numpy.linspace creates an array of
+# 9 linearly placed elements between
+# -4 and 4, both inclusive
+y = np.linspace(-2, 1.9, 40)
 
-def derivative_linear(x):
-    return 1
+# The meshgrid function returns
+# two 2-dimensional arrays
+x_1, y_1 = np.meshgrid(x, y)
+random_data = np.random.random((40, 40))
+plt.contourf(x_1, y_1, random_data, cmap='jet')
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-
-def derivative_sigmoid(x):
-    return x * (1 - x)
-
-inputs = []
-outputs = []
-startPoint, endPoint = -2, 2
-
-for a in np.arange(startPoint, endPoint, 0.1):
-    for b in np.arange(startPoint, endPoint, 0.1):
-        inputs.append([a, b])
-        z = (1 - a) ** 2 + 100 * (b - a ** 2) ** 2
-        outputs.append([z])
-
-temp_initial_inputs = np.array(inputs) # (endPoint*10 - startPoint*10)^2 x 2 matrix
-temp_expected_output = np.array(outputs) # (endPoint*10 - startPoint*10)^2 x 1 matrix eg. 25x1
-
-# Initial biases
-b1 = 1
-b2 = 1
-
-inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 16, 1
-
-
-# Gaussian Noise
-mu, sigma = 0, 0
-
-epochs = 100000
-learning_rate = 0.000001
-
-hidden_weights = np.random.uniform(size=(hiddenLayerNeurons, inputLayerNeurons))
-hidden_bias_weights = np.random.uniform(size=(hiddenLayerNeurons, 1))
-output_weights = np.random.uniform(size=(outputLayerNeurons, hiddenLayerNeurons))
-output_bias_weights = np.random.uniform(size=(outputLayerNeurons, 1))
-
-index = 0
-item = 10
-lastIndex = int(((endPoint-startPoint)*10)**2)
-
-for i in range(epochs):
-    # Index is increased 5 and taking 10 items for each training
-    if index+item > lastIndex:
-        index = lastIndex - item
-    #print(index)
-    #print("Epochs is", i)
-    noise = np.random.normal(mu, sigma, [item, 2]) # Generate Gaussian Noise for adding inputs
-    initial_inputs = temp_initial_inputs[index:index+item, :] # select an input pair out of 4 pairs 1x2 matrix
-    expected_output = temp_expected_output[index:index+item] # select expected output corresponding to input
-
-    inputs = initial_inputs # 1x2 matrix
-
-    # Forward Propagation
-    hidden_layer = np.dot(hidden_weights, inputs.T) + np.dot(hidden_bias_weights, b1)
-    # Sigmoid act. func. was used for hidden layer
-    hidden_layer_activation = sigmoid(hidden_layer)  # #hiddenLayerNeurons x 1 matrix
-
-    output_layer = np.dot(output_weights, hidden_layer_activation) + np.dot(output_bias_weights, b2)
-    # Linear act. func. was used instead of sigmoid for output layer
-    output_layer_activation = linear_function(output_layer) # #outputLayerNeurons x 1 matrix
-
-    # Back Propagation
-    # Mean Squared Error
-    error_train = np.mean(temp_expected_output[index:index+10] - output_layer_activation.T)
-
-    # Derivative of Linear act. func. was used
-    delta_error = error_train * derivative_linear(output_layer_activation)  # Partial derivative dE/dxj 1x1 matrix
-
-    # Derivative of Sigmoid act. func. was used
-    delta_hidden_layer = output_weights.T * derivative_sigmoid(hidden_layer_activation) * delta_error  # Partial derivative dE/dxj * dxj/dxi #hiddenLayerNeuronsx1 matrix
-
-    # Updating weights for hidden layer
-    output_weights = output_weights + hidden_layer_activation.T * delta_error * learning_rate # #1xhiddenLayerNeurons matrix
-    output_bias_weights = output_bias_weights + delta_error * b2 * learning_rate
-
-    # Updating weights for input layer
-    hidden_weights = hidden_weights + np.dot(delta_hidden_layer, inputs) * learning_rate
-    hidden_bias_weights = hidden_bias_weights + delta_hidden_layer * b1 * learning_rate
-    print("Error %.3f" % error_train)
-    index += 5
-    if index == lastIndex - 5:
-        index = 0
-
-
+plt.colorbar()
+plt.show()
