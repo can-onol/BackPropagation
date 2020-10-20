@@ -13,6 +13,7 @@ from random import random
 import matplotlib.pyplot as plt
 import pylab as p
 import numpy as np
+import time
 
 # seed random number generator
 seed(1)
@@ -47,13 +48,13 @@ temp_expected_output = np.array(outputs) # (endPoint*10 - startPoint*10)^2 x 1 m
 b1 = 1
 b2 = 1
 
-inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 32, 1
+inputLayerNeurons, hiddenLayerNeurons, outputLayerNeurons = 2, 16, 1
 
 
 # Gaussian Noise
 mu, sigma = 0, 0.1
 
-epochs = 1000
+epochs = 600
 learning_rate = 0.002
 
 hidden_weights = np.random.uniform(size=(hiddenLayerNeurons, inputLayerNeurons))
@@ -61,9 +62,14 @@ hidden_bias_weights = np.random.uniform(size=(hiddenLayerNeurons, 1))
 output_weights = np.random.uniform(size=(outputLayerNeurons, hiddenLayerNeurons))
 output_bias_weights = np.random.uniform(size=(outputLayerNeurons, 1))
 
+start = time.time()
+graph_error = []
+dim = []
+
 for i in range(epochs):
     #print("Epochs is", i)
-    inputs = temp_initial_inputs
+    noise = np.random.normal(mu, sigma, [(endPoint*10 - startPoint*10)**2,2])  # Generate Gaussian Noise for adding inputs
+    inputs = temp_initial_inputs + noise
 
     # Forward Propagation
     hidden_layer = np.dot(hidden_weights, inputs.T) + np.dot(hidden_bias_weights, b1)
@@ -75,10 +81,12 @@ for i in range(epochs):
     output_layer_activation = linear_function(output_layer) # #outputLayerNeurons x 1 matrix
 
     # Back Propagation
-    #error_train = temp_expected_output - output_layer_activation
-
-    # Mean Squared Error
+    # Mean of error differences
     error_train = np.mean(temp_expected_output - output_layer_activation.T)
+
+    # Plotting Error Graph
+    graph_error.append(error_train)
+    dim.append(i)
 
     # Derivative of Linear act. func. was used
     delta_error = error_train * derivative_linear(output_layer_activation)  # Partial derivative dE/dxj 1x1 matrix
@@ -93,6 +101,13 @@ for i in range(epochs):
     # Updating weights for input layer
     hidden_weights = hidden_weights + np.dot(delta_hidden_layer, inputs) * learning_rate
     hidden_bias_weights = hidden_bias_weights + delta_hidden_layer * b1 * learning_rate
-print("Error", error_train)
-print("Epochs is", i)
 
+print("Error %.3f" % error_train)
+print("Epochs is", i)
+end = time.time()
+print("Elapsed time: %.3f" % (end - start))
+
+abs_graph_error =np.abs(graph_error)
+abs_graph_error = np.squeeze(np.array(abs_graph_error))
+plt.plot(dim, abs_graph_error)
+p.show()
